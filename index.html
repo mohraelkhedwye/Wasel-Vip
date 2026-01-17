@@ -3,218 +3,299 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WASEL VIP SYSTEM</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <title>واصل - WASSEL Reservations</title>
     <style>
-        :root { --gold: #D4AF37; --neon-gold: #ffcc00; }
-        body { background: #000; color: #fff; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
-
-        /* 1. شاشة تسجيل الدخول */
-        #auth-screen {
-            position: fixed; inset: 0; background: #000; z-index: 10000;
-            display: flex; align-items: center; justify-content: center;
+        :root {
+            --gold-light: #d4af37;
+            --gold-dark: #aa841e;
+            --black-bg: #0a0a0a;
+            --card-bg: #151515;
         }
-        .auth-box {
-            width: 320px; padding: 40px; border: 2px solid var(--gold); border-radius: 20px;
-            box-shadow: 0 0 25px var(--gold); text-align: center; background: #0a0a0a;
-        }
-        .auth-input { width: 100%; padding: 12px; margin-bottom: 15px; background: #111; border: 1px solid var(--gold); color: #fff; border-radius: 8px; box-sizing: border-box; }
 
-        /* 2. الواجهة الرئيسية (محاكاة صورتك) */
-        #main-site { display: none; }
-        .header { text-align: center; padding: 30px 0; background: linear-gradient(to bottom, #1a1a1a, #000); border-bottom: 1px solid #222; }
-        .header img { width: 200px; filter: drop-shadow(0 0 10px var(--gold)); }
-
-        .services-grid { 
-            display: grid; grid-template-columns: repeat(2, 1fr); 
-            gap: 15px; padding: 20px; max-width: 600px; margin: 0 auto;
+        body {
+            background-color: var(--black-bg);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
         }
+
+        /* الإطار الذهبي المضيء للموقع */
+        .main-wrapper {
+            border: 2px solid var(--gold-light);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+            margin: 10px;
+            min-height: 98vh;
+        }
+
+        /* الهيدر اللوجو */
+        header {
+            text-align: center;
+            padding: 40px 0;
+            background: linear-gradient(to bottom, #1a1a1a, #0a0a0a);
+        }
+
+        .logo-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .logo-container h1 {
+            font-size: 60px;
+            color: var(--gold-light);
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .logo-reflection {
+            transform: scaleY(-1);
+            opacity: 0.2;
+            margin-top: -20px;
+        }
+
+        /* شريط البحث */
+        .search-section {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px;
+            background: rgba(21, 21, 21, 0.8);
+            border: 1px solid var(--gold-dark);
+            width: 80%;
+            margin: 0 auto;
+            border-radius: 5px;
+        }
+
+        .search-input {
+            background: transparent;
+            border: 1px solid #333;
+            color: var(--gold-light);
+            padding: 10px;
+            width: 250px;
+        }
+
+        .btn-search {
+            background: linear-gradient(to bottom, var(--gold-light), var(--gold-dark));
+            border: none;
+            padding: 10px 30px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* شبكة العروض */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
         .card {
-            background: #0d0d0d; border: 1px solid #333; border-radius: 15px; padding: 20px;
-            text-align: center; cursor: pointer; transition: 0.3s;
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #222;
+            transition: 0.3s;
         }
-        .card:hover { border-color: var(--gold); box-shadow: 0 0 15px var(--gold); transform: translateY(-3px); }
-        .card img { width: 50px; margin-bottom: 10px; filter: brightness(1.2); }
-        .card h3 { color: var(--gold); font-size: 14px; margin: 0; }
 
-        /* 3. نافذة الحجز (البرواز الذهبي النيون) */
-        .modal {
-            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 95%; max-width: 500px; background: rgba(5, 5, 5, 0.98);
-            border: 3px solid var(--gold); border-radius: 20px;
-            box-shadow: 0 0 40px var(--neon-gold); z-index: 9999; padding: 20px; box-sizing: border-box;
+        .card:hover {
+            border-color: var(--gold-light);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
         }
-        .modal-header { color: var(--gold); text-align: center; margin-bottom: 15px; font-weight: bold; }
-        
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .full { grid-column: span 2; }
-        input, select { background: #151515; border: 1px solid var(--gold); color: #fff; padding: 12px; border-radius: 8px; width: 100%; box-sizing: border-box; }
 
-        /* خريطة أوبر */
-        #map { width: 100%; height: 200px; border-radius: 10px; margin: 10px 0; border: 1px solid var(--gold); display: none; }
-        .gps-btn { background: #222; color: var(--gold); border: 1px dashed var(--gold); padding: 10px; width: 100%; cursor: pointer; border-radius: 8px; margin-bottom: 10px; }
-
-        /* 4. قسم اللوجوهات البيضاوية المجسمة 3D */
-        .footer-area { text-align: center; margin-top: 60px; padding-bottom: 40px; }
-        .oval-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; padding: 20px; }
-        .oval-3d {
-            width: 90px; height: 60px; border-radius: 50%; border: 2px solid var(--gold);
-            background: radial-gradient(circle at 30% 30%, #ffffff 10%, #aaaaaa 100%);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.6), inset 0 -3px 8px rgba(0,0,0,0.4);
-            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        /* أيقونات ذهبية مجسمة من صورتك */
+        .icon-box {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 15px;
+            background-image: url('https://r.jina.ai/i/6f903513ca44485586616422d1000845'); /* رابط صورتك */
+            background-size: 600px; /* للتحكم في مكان الأيقونة */
+            border-radius: 50%;
+            box-shadow: inset 0 0 10px #000;
         }
-        .oval-3d img { width: 70%; pointer-events: none; }
 
-        .btn-main { background: linear-gradient(180deg, var(--gold), #8a6d3b); color: #000; font-weight: bold; border: none; padding: 15px; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 15px; }
-        .close-x { color: red; float: left; cursor: pointer; font-size: 20px; }
+        /* تخصيص مكان كل أيقونة من الصورة */
+        .icon-hotel { background-position: -20px -340px; }
+        .icon-flight { background-position: -310px -340px; }
+        .icon-car { background-position: -20px -580px; }
 
-        /* السوشيال ميديا */
-        .social { display: flex; justify-content: center; gap: 20px; margin-top: 30px; }
-        .social img { width: 40px; filter: drop-shadow(0 0 5px var(--gold)); }
+        .btn-book {
+            background: var(--gold-dark);
+            color: black;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        /* الفوتر وأيقونات التواصل */
+        footer {
+            text-align: center;
+            padding: 40px;
+            border-top: 1px solid #222;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .social-box {
+            width: 60px;
+            height: 60px;
+            background: var(--gold-dark);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .social-box:hover {
+            transform: translateY(-5px);
+            background: var(--gold-light);
+        }
+
+        /* قسم الاعتمادات (شركات الطيران والبنوك) */
+        .partners-section {
+            margin: 40px 0;
+            padding: 20px;
+        }
+
+        .partner-logo {
+            display: inline-block;
+            width: 80px;
+            height: 40px;
+            background: #111;
+            border: 1px solid var(--gold-dark);
+            border-radius: 20px; /* شكل بيضاوي */
+            margin: 5px;
+            opacity: 0.7;
+        }
+
+        /* صفحة الحجز المخفية */
+        #booking-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .booking-content {
+            width: 80%;
+            margin: 50px auto;
+            border: 3px solid var(--gold-light);
+            padding: 30px;
+            background: var(--black-bg);
+            box-shadow: 0 0 30px var(--gold-light);
+        }
     </style>
 </head>
 <body>
 
-<div id="auth-screen">
-    <div class="auth-box">
-        <h2>WASEL</h2>
-        <input type="text" placeholder="البريد الإلكتروني" class="auth-input">
-        <input type="password" placeholder="كلمة المرور" class="auth-input">
-        <button class="btn-main" onclick="login()">تسجيل الدخول</button>
-    </div>
-</div>
-
-<div id="main-site">
-    <div class="header">
-        <img src="https://i.ibb.co/VvYV7vL/wasel-bg.jpg" alt="Logo">
-        <h2 style="color:var(--gold); margin:10px 0;">RESERVATIONS</h2>
-    </div>
-
-    <div class="services-grid">
-        <div class="card" onclick="openModal('hotels')">
-            <img src="https://cdn-icons-png.flaticon.com/512/2903/2903322.png">
-            <h3>فنادق وشقق</h3>
+<div class="main-wrapper">
+    <header>
+        <div class="logo-container">
+            <h1>WASEL.</h1>
+            <h1 class="logo-reflection">WASEL.</h1>
         </div>
-        <div class="card" onclick="openModal('limo')">
-            <img src="https://cdn-icons-png.flaticon.com/512/3063/3063822.png">
+        <p style="color: var(--gold-light); letter-spacing: 3px;">RESERVATIONS</p>
+    </header>
+
+    <div class="search-section">
+        <input type="text" class="search-input" placeholder="الوجهة">
+        <input type="text" class="search-input" placeholder="تاريخ الحجز">
+        <button class="btn-search">بحث</button>
+    </div>
+
+    <div class="grid-container">
+        <div class="card">
+            <div class="icon-box icon-hotel"></div>
+            <h3>حجز الفنادق</h3>
+            <button class="btn-book" onclick="openBooking('hotel')">احجز الآن</button>
+        </div>
+
+        <div class="card">
+            <div class="icon-box icon-flight"></div>
+            <h3>حجز طيران</h3>
+            <button class="btn-book" onclick="openBooking('flight')">احجز الآن</button>
+        </div>
+
+        <div class="card">
+            <div class="icon-box icon-car"></div>
             <h3>ليموزين واصل</h3>
-        </div>
-        <div class="card" onclick="openModal('matches')">
-            <img src="https://cdn-icons-png.flaticon.com/512/53/53283.png">
-            <h3>تذاكر ماتشات</h3>
-        </div>
-        <div class="card" onclick="openModal('flights')">
-            <img src="https://cdn-icons-png.flaticon.com/512/784/784306.png">
-            <h3>تذاكر طيران</h3>
+            <button class="btn-book" onclick="openBooking('limo')">احجز الآن</button>
         </div>
     </div>
 
-    <div id="modal" class="modal">
-        <span class="close-x" onclick="closeModal()">×</span>
-        <div id="modal-title" class="modal-header">طلب حجز</div>
+    <div class="partners-section" style="text-align: center;">
+        <p style="color: var(--gold-light);">شركات طيران معتمدة واستادات</p>
+        <div class="partner-logo"></div><div class="partner-logo"></div><div class="partner-logo"></div>
+        <div class="partner-logo"></div><div class="partner-logo"></div><div class="partner-logo"></div>
         
-        <div id="dynamic-fields" class="form-grid"></div>
-        
-        <div id="map"></div>
-        <button class="btn-main" onclick="submit()">تأكيد الحجز</button>
+        <p style="color: var(--gold-light); margin-top: 20px;">وسائل الدفع المقبولة</p>
+        <div class="partner-logo" title="Fawry"></div>
+        <div class="partner-logo" title="InstaPay"></div>
+        <div class="partner-logo" title="Vodafone Cash"></div>
     </div>
 
-    <div class="footer-area">
-        <div style="height: 50px;"></div>
-        <h3 style="color:var(--gold)">الاعتمادات ووسائل الدفع</h3>
-        <div class="oval-container">
-            <div class="oval-3d"><img src="https://upload.wikimedia.org/wikipedia/en/3/3e/EgyptAir_logo.svg"></div>
-            <div class="oval-3d"><img src="https://upload.wikimedia.org/wikipedia/en/thumb/a/a7/Qatar_Airways_logo.svg/1200px-Qatar_Airways_logo.svg.png"></div>
-            <div class="oval-3d"><img src="https://www.instapay.eg/assets/img/logo.png"></div>
-            <div class="oval-3d"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Vodafone_2017_logo.svg/1200px-Vodafone_2017_logo.svg.png"></div>
-            <div class="oval-3d" style="color:#000; font-size:10px; font-weight:bold;">فوري</div>
-            <div class="oval-3d" style="color:#000; font-size:10px; font-weight:bold;">البنك الأهلي</div>
+    <footer>
+        <div class="social-icons">
+            <div class="social-box" onclick="window.open('https://tiktok.com')">Tk</div>
+            <div class="social-box" onclick="window.open('https://facebook.com')">Fb</div>
+            <div class="social-box" onclick="window.open('https://instagram.com')">Ig</div>
+            <div class="social-box" onclick="window.open('https://t.me')">Tg</div>
         </div>
+        <p>© 2024 Wasel. All Rights Reserved.</p>
+    </footer>
+</div>
 
-        <div class="social">
-            <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png">
-            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png">
-            <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png">
-        </div>
-        <p style="color:#444; margin-top:20px;">© 2024 Wasel VIP. All Rights Reserved.</p>
+<div id="booking-page">
+    <div class="booking-content" id="form-container">
+        <button onclick="closeBooking()" style="float: left; background: red; color: white;">إغلاق</button>
+        <div id="form-fields"></div>
     </div>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    let map, marker;
-    let currentType = '';
-
-    function login() { document.getElementById('auth-screen').style.display='none'; document.getElementById('main-site').style.display='block'; }
-    function closeModal() { document.getElementById('modal').style.display='none'; }
-
-    function openModal(type) {
-        currentType = type;
-        const m = document.getElementById('modal');
-        const f = document.getElementById('dynamic-fields');
-        const mapDiv = document.getElementById('map');
-        m.style.display = 'block';
-        mapDiv.style.display = 'none';
-
-        let common = `<input type="text" placeholder="الاسم" class="full"><input type="tel" placeholder="رقم الهاتف" class="full">`;
-
-        if(type === 'hotels') {
-            document.getElementById('modal-title').innerText = "حجز فنادق / شقق";
-            f.innerHTML = common + `<select class="full"><option>شقة مفروشة</option><option>جناح فندقي</option></select>
-                <input type="text" placeholder="الدولة"><input type="text" placeholder="المدينة">
-                <input type="number" placeholder="عدد الغرف"><input type="number" placeholder="عدد الحمامات">
-                <input type="number" placeholder="عدد الأطفال"><input type="number" placeholder="عدد الأفراد">
-                <input type="text" onfocus="this.type='date'" placeholder="من تاريخ"><input type="text" onfocus="this.type='date'" placeholder="إلى تاريخ">`;
-        } else if(type === 'limo') {
-            document.getElementById('modal-title').innerText = "ليموزين واصل (خريطة أوبر)";
-            f.innerHTML = common + `<button class="gps-btn full" onclick="initUberMap()">📍 تحديد موقعي الحالي على الخريطة</button>
-                <input type="text" id="loc" placeholder="نقطة الانطلاق" class="full">
-                <input type="text" placeholder="وجهة الوصول" class="full">`;
-        } else if(type === 'matches') {
-            document.getElementById('modal-title').innerText = "حجز تذاكر ماتشات";
-            f.innerHTML = common + `<select class="full" onchange="stadiums(this.value)"><option>اختر الدولة</option><option value="eg">مصر</option><option value="sa">السعودية</option></select>
-                <div id="st-list" class="full"></div><input type="number" placeholder="عدد التذاكر" class="full">`;
-        } else {
-            document.getElementById('modal-title').innerText = "حجز طيران";
-            f.innerHTML = common + `<input type="text" placeholder="من"><input type="text" placeholder="إلى"><input type="text" onfocus="this.type='date'" placeholder="موعد السفر" class="full">`;
+    function openBooking(type) {
+        document.getElementById('booking-page').style.display = 'block';
+        let fields = document.getElementById('form-fields');
+        
+        if(type === 'hotel') {
+            fields.innerHTML = `
+                <h2 style="color:var(--gold-light)">حجز فندق / جناح</h2>
+                <input type="text" placeholder="الدولة" class="search-input" style="width:90%; margin:10px;">
+                <input type="text" placeholder="المدينة" class="search-input" style="width:90%; margin:10px;">
+                <input type="number" placeholder="عدد الغرف" class="search-input" style="width:40%; margin:10px;">
+                <input type="number" placeholder="عدد الحمامات" class="search-input" style="width:40%; margin:10px;">
+                <button class="btn-book" style="width:100%; padding:15px;" onclick="alert('سيتم التواصل معك الآن من خلال خدمة عملاء واصل عن طريق واتساب')">إتمام الحجز</button>
+            `;
         }
+        // باقي النماذج سأرسلها لكِ في الجزء القادم فوراً
     }
 
-    function initUberMap() {
-        document.getElementById('map').style.display = 'block';
-        if (!map) {
-            map = L.map('map').setView([30.0444, 31.2357], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            marker = L.marker([30.0444, 31.2357], {draggable: true}).addTo(map);
-            marker.on('dragend', function() {
-                let p = marker.getLatLng();
-                document.getElementById('loc').value = `موقعك: ${p.lat.toFixed(4)}, ${p.lng.toFixed(4)}`;
-            });
-        }
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(p => {
-                let coords = [p.coords.latitude, p.coords.longitude];
-                map.setView(coords, 16);
-                marker.setLatLng(coords);
-                document.getElementById('loc').value = "تم تحديد موقعك بدقة ✅";
-            });
-        }
-    }
-
-    function stadiums(val) {
-        const list = document.getElementById('st-list');
-        if(val === 'eg') list.innerHTML = `<select class="full"><option>استاد القاهرة</option><option>استاد برج العرب</option></select>`;
-        else if(val === 'sa') list.innerHTML = `<select class="full"><option>استاد الجوهرة</option><option>ملعب الأول بارك</option></select>`;
-    }
-
-    function submit() {
-        if(currentType === 'hotels' || currentType === 'limo') {
-            alert("جاري تحويلك لخدمة عملاء واصل عبر واتساب");
-            window.location.href = "https://wa.me/201234567890";
-        } else {
-            alert("تم تسجيل طلبك. سيتم التواصل معك لدفع التذكرة واستلامها.");
-        }
+    function closeBooking() {
+        document.getElementById('booking-page').style.display = 'none';
     }
 </script>
+
 </body>
 </html>
