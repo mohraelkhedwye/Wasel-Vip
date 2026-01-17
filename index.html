@@ -2,136 +2,86 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WASEL - الفخامة في الحجز</title>
     <style>
-        body { background-color: #000; color: #d4af37; margin: 0; font-family: sans-serif; }
+        :root { --gold: #d4af37; --black: #000; }
+        body { background-color: var(--black); color: white; margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; }
         
-        /* الإطار الذهبي المضيء للموقع بالكامل */
-        .site-border {
-            border: 2px solid #d4af37;
-            box-shadow: inset 0 0 15px #d4af37, 0 0 15px #d4af37;
-            margin: 5px;
-            min-height: 99vh;
-            position: relative;
-        }
+        /* الإطار الذهبي المضيء اللي طلبتيه */
+        .gold-border { border: 2px solid var(--gold); box-shadow: 0 0 20px var(--gold), inset 0 0 20px var(--gold); margin: 5px; min-height: 98vh; padding-bottom: 50px; }
 
-        /* الهيدر واللوجو المنسوخ من الصورة */
-        .header-bg {
-            height: 250px;
-            background: url('wasel.png') no-repeat center 0px; /* استخدام الصورة الأصلية */
-            background-size: 500px;
-            position: relative;
-        }
+        /* اللوجو والهيدر من صورتك */
+        header { text-align: center; padding: 20px; }
+        .main-logo { width: 100%; max-width: 400px; height: 180px; background: url('https://r.jina.ai/i/6f903513ca44485586616422d1000845') no-repeat center -10px; background-size: 500px; margin: 0 auto; }
 
-        /* شريط البحث الذهبي */
-        .search-bar {
-            width: 90%;
-            height: 50px;
-            margin: 0 auto;
-            border: 1px solid #d4af37;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 10px;
-            background: rgba(20,20,20,0.8);
-        }
+        /* الأيقونات الذهبية مقصوصة بالملي */
+        .icon-circle { width: 120px; height: 120px; border-radius: 50%; margin: 0 auto 10px; background: url('https://r.jina.ai/i/6f903513ca44485586616422d1000845') no-repeat; background-size: 550px; }
+        .hotel-icon { background-position: -15px -325px; }
+        .flight-icon { background-position: -285px -325px; }
+        .limo-icon { background-position: -15px -565px; }
+        .match-icon { background-position: -285px -565px; }
 
-        /* الأيقونات الذهبية - قص احترافي من صورتك */
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            padding: 20px;
-        }
+        /* التصميم العام للكروت */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
+        .card { background: #111; border: 1px solid #222; border-radius: 15px; padding: 15px; text-align: center; transition: 0.3s; }
+        .card:hover { border-color: var(--gold); box-shadow: 0 0 10px var(--gold); }
+        .btn-gold { background: linear-gradient(to bottom, #f9df7b, #b38728); color: black; border: none; padding: 8px 15px; font-weight: bold; cursor: pointer; width: 100%; border-radius: 5px; }
 
-        .item-card {
-            background: #111;
-            border-radius: 15px;
-            padding: 15px;
-            text-align: center;
-            border: 1px solid #222;
-        }
+        /* صفحة الحجز (المخفية وتظهر عند الضغط) */
+        #booking-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 9999; overflow-y: auto; }
+        .form-container { width: 90%; margin: 30px auto; border: 2px solid var(--gold); box-shadow: 0 0 30px var(--gold); padding: 20px; background: #000; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; background: #111; border: 1px solid var(--gold); color: white; border-radius: 5px; box-sizing: border-box; }
 
-        .gold-icon {
-            width: 130px;
-            height: 130px;
-            margin: 0 auto;
-            background: url('wasel.png') no-repeat;
-            background-size: 550px; /* تكبير الصورة للقص */
-            border-radius: 50%;
-        }
+        /* الاعتمادات (شكل بيضاوي مجسم) */
+        .partners { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; padding: 20px; }
+        .partner-item { width: 70px; height: 35px; border: 1px solid var(--gold); border-radius: 20px; background: rgba(212,175,55,0.1); box-shadow: inset 0 0 5px var(--gold); }
 
-        /* تحديد مكان كل أيقونة بالملي من الصورة اللي بعتيها */
-        .icon-hotel { background-position: -15px -325px; }
-        .icon-flight { background-position: -285px -325px; }
-        .icon-limo { background-position: -15px -565px; }
-        .icon-match { background-position: -285px -565px; }
-
-        .book-btn {
-            background: linear-gradient(to bottom, #f9df7b, #b38728);
-            color: #000;
-            border: none;
-            padding: 5px 15px;
-            font-weight: bold;
-            margin-top: 10px;
-            cursor: pointer;
-        }
-
-        /* أيقونات التواصل الاجتماعي من صورتك */
-        .social-footer {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            padding: 20px;
-        }
-
-        .social-icon {
-            width: 60px;
-            height: 60px;
-            background: url('wasel.png') no-repeat;
-            background-size: 500px;
-            background-position: -15px -800px; /* مكان أيقونة تيك توك */
-        }
+        /* فوتر التواصل */
+        footer { text-align: center; margin-top: 20px; }
+        .social-bar { display: flex; justify-content: center; gap: 10px; }
+        .social-btn { width: 50px; height: 50px; background: url('https://r.jina.ai/i/6f903513ca44485586616422d1000845') no-repeat; background-size: 450px; border-radius: 10px; cursor: pointer; }
+        .tk { background-position: -65px -725px; }
+        .ig { background-position: -130px -725px; }
+        .fb { background-position: -195px -725px; }
     </style>
 </head>
 <body>
 
-<div class="site-border">
-    <div class="header-bg"></div>
+<div class="gold-border">
+    <header><div class="main-logo"></div></header>
 
-    <div class="search-bar">
-        <span>الوجهة</span>
-        <span>تاريخ الحجز</span>
-        <div class="book-btn" style="margin:0">بحث</div>
-    </div>
-
-    <div class="main-grid">
-        <div class="item-card">
-            <div class="gold-icon icon-hotel"></div>
-            <p>حجز فنادق</p>
-            <button class="book-btn" onclick="showForm('hotel')">احجز الآن</button>
+    <div class="grid">
+        <div class="card">
+            <div class="icon-circle hotel-icon"></div>
+            <p>حجز فنادق VIP</p>
+            <button class="btn-gold" onclick="openForm('hotel')">احجز الآن</button>
         </div>
-        <div class="item-card">
-            <div class="gold-icon icon-flight"></div>
-            <p>حجز طيران</p>
-            <button class="book-btn" onclick="showForm('flight')">احجز الآن</button>
+        <div class="card">
+            <div class="icon-circle flight-icon"></div>
+            <p>طيران ملكي</p>
+            <button class="btn-gold" onclick="openForm('flight')">احجز الآن</button>
         </div>
-    </div>
-
-    <div style="text-align:center; padding: 20px;">
-        <p style="font-size: 12px;">شركات طيران معتمدة وبنوك</p>
-        <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:5px;">
-            <div style="width:60px; height:30px; border:1px solid #d4af37; border-radius:15px; background:rgba(212,175,55,0.1)"></div>
-            <div style="width:60px; height:30px; border:1px solid #d4af37; border-radius:15px; background:rgba(212,175,55,0.1)"></div>
+        <div class="card">
+            <div class="icon-circle limo-icon"></div>
+            <p>ليموزين واصل</p>
+            <button class="btn-gold" onclick="openForm('limo')">احجز الآن</button>
+        </div>
+        <div class="card">
+            <div class="icon-circle match-icon"></div>
+            <p>حجز مباريات</p>
+            <button class="btn-gold" onclick="openForm('match')">احجز الآن</button>
         </div>
     </div>
 
-    <div class="social-footer">
-        <a href="https://tiktok.com" target="_blank"><div class="social-icon" style="background-position: -72px -808px;"></div></a>
-        <a href="https://instagram.com" target="_blank"><div class="social-icon" style="background-position: -145px -808px;"></div></a>
-        <a href="https://facebook.com" target="_blank"><div class="social-icon" style="background-position: -218px -808px;"></div></a>
+    <div style="text-align: center; margin-top: 20px;">
+        <p style="color: var(--gold); font-size: 12px;">شركات الطيران والبنوك المعتمدة</p>
+        <div class="partners">
+            <div class="partner-item"></div><div class="partner-item"></div><div class="partner-item"></div>
+            <div class="partner-item"></div><div class="partner-item"></div>
+        </div>
     </div>
-</div>
 
-</body>
-</html>
+    <footer>
+        <div class="social-bar">
+            <div class="social-btn tk" onclick="location.href='https
